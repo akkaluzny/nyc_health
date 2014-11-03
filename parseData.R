@@ -12,6 +12,8 @@ ratingData$INSPECTION.DATE <- convertDate(ratingData$INSPECTION.DATE)
 ratingData$GRADE.DATE <- convertDate(ratingData$GRADE.DATE)
 ratingData$RECORD.DATE <- convertDate(ratingData$RECORD.DATE)
 
+# make empty violation
+
 # Get rid of inspections with a date of 1900-01-01, as these have 
 # restaurants not been inspected yet
 ratingData <- ratingData[ratingData$INSPECTION.DATE != "1900-01-01", ]
@@ -36,8 +38,7 @@ ratingData <- ratingData[ratingData$INSPECTION.DATE != "1900-01-01", ]
 
 restaurantColumns <- c("CAMIS", "DBA", "BORO", "BUILDING", "STREET", "ZIPCODE",
                        "PHONE", "CUISINE.DESCRIPTION")
-inspectionColumns <- c("CAMIS", "INSPECTION.DATE", "ACTION", "VIOLATION.CODE",
-                       "VIOLATION.DESCRIPTION", "CRITICAL.FLAG", "SCORE",
+inspectionColumns <- c("CAMIS", "INSPECTION.DATE", "ACTION", "SCORE",
                        "GRADE", "GRADE.DATE", "RECORD.DATE", "INSPECTION.TYPE")
 
 # create a data frame that contains just the restaurant information
@@ -47,3 +48,31 @@ restaurants <- ratingData[!duplicated(ratingData$CAMIS), restaurantColumns]
 inspectionRows <- !duplicated(paste(ratingData$CAMIS, ratingData$INSPECTION.DATE))
 inspections <- ratingData[inspectionRows, inspectionColumns]
 
+# function to produce a string that contains the violation codes for a given inspection
+makeViolationString <- function(id, date) {
+  violations <- ratingData[ratingData$CAMIS==id & ratingData$INSPECTION.DATE==date,
+                           "VIOLATION.CODE"]
+  return(paste(violations, collapse=" "))
+}
+# create the above string for each inspection and add it as a new column
+## UNTESTED
+#inspections$VIOLATIONS <- mapply(makeViolationString,
+#                                 inspections$CAMIS, inspections$INSPECTION.DATE,
+#                                 SIMPLIFY="vector")
+
+violationCodes <- unique(ratingData$VIOLATION.CODE)
+violationCodes <- violationCodes[violationCodes != ""] # exclude the empty violation
+nCodes <- length(violationCodes)
+# Creates a vector ~~~~~~
+makeViolationVector <- function(violation) {
+  result <- numeric(nCodes)
+  names(result) <- violationCodes
+  violations <- ratingData[ratingData$CAMIS==id, "VIOLATION.CODE"]
+  for (v in violations) {
+    result[v] <- result[v] + 1
+  }
+  print(result)
+  return(result / length(violations))
+}
+violationVectors <- lapply(restaurants$CAMIS, makeViolationVector)
+#names(violationVectors) <- restaurants$CAMIS
