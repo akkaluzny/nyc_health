@@ -16,3 +16,34 @@ ratingData$RECORD.DATE <- convertDate(ratingData$RECORD.DATE)
 # restaurants not been inspected yet
 ratingData <- ratingData[ratingData$INSPECTION.DATE != "1900-01-01", ]
 
+# Check to see that addresses are uniquely associated with the CAMIS ids
+# note this is not optimized and will take a while to run
+#ii <- 0
+#for (id in unique(ratingData$CAMIS)) {
+#  restData <- ratingData[ratingData$CAMIS==id, c("BUILDING", "STREET")]
+#  address <- paste(restData$BUILDING, restData$STREET)
+#  if (length(unique(address)) > 1) {
+#    print(id)
+#    print(unique(address))
+#    print("")
+#  }
+#  if (ii %% 100 == 0) {
+#    print(ii)
+#  }
+#  ii <- ii+1
+#}
+
+
+restaurantColumns <- c("CAMIS", "DBA", "BORO", "BUILDING", "STREET", "ZIPCODE",
+                       "PHONE", "CUISINE.DESCRIPTION")
+inspectionColumns <- c("CAMIS", "INSPECTION.DATE", "ACTION", "VIOLATION.CODE",
+                       "VIOLATION.DESCRIPTION", "CRITICAL.FLAG", "SCORE",
+                       "GRADE", "GRADE.DATE", "RECORD.DATE", "INSPECTION.TYPE")
+
+# create a data frame that contains just the restaurant information
+restaurants <- ratingData[!duplicated(ratingData$CAMIS), restaurantColumns]
+
+# create a frame with a row for each inspection
+inspectionRows <- !duplicated(paste(ratingData$CAMIS, ratingData$INSPECTION.DATE))
+inspections <- ratingData[inspectionRows, inspectionColumns]
+
