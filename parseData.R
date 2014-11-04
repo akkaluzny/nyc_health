@@ -48,6 +48,11 @@ restaurants <- ratingData[!duplicated(ratingData$CAMIS), restaurantColumns]
 inspectionRows <- !duplicated(paste(ratingData$CAMIS, ratingData$INSPECTION.DATE))
 inspections <- ratingData[inspectionRows, inspectionColumns]
 
+# add column to restaurant frame for the number of inspections
+restaurants$N.INSPECTIONS <- vapply(restaurants$CAMIS,
+                                    function(id) length(inspections[inspections$CAMIS==id, 1]),
+                                    FUN.VALUE=integer(1))
+
 # function to produce a string that contains the violation codes for a given inspection
 makeViolationString <- function(id, date) {
   violations <- ratingData[ratingData$CAMIS==id & ratingData$INSPECTION.DATE==date,
@@ -63,16 +68,14 @@ makeViolationString <- function(id, date) {
 violationCodes <- unique(ratingData$VIOLATION.CODE)
 violationCodes <- violationCodes[violationCodes != ""] # exclude the empty violation
 nCodes <- length(violationCodes)
-# Creates a vector ~~~~~~
+# Create a matrix where each row corresponds to a "histogram"-like tally of
+# violations for a restaurant
+# This helper function creates one column of the matrix (i.e. for one violation)
 makeViolationVector <- function(violation) {
-  result <- numeric(nCodes)
-  names(result) <- violationCodes
-  violations <- ratingData[ratingData$CAMIS==id, "VIOLATION.CODE"]
-  for (v in violations) {
-    result[v] <- result[v] + 1
-  }
-  print(result)
-  return(result / length(violations))
+  vRows <- ratingData$VIOLATION.CODE == violation
+  result <- vapply(restaurants$CAMIS, function(id) sum((ratingData$CAMIS == id) & vRows),
+                   FUN.VALUE=integer(1))
+  return(result / restaurants$N.INSPECTIONS)
 }
-violationVectors <- lapply(restaurants$CAMIS, makeViolationVector)
+violation <- sapply(violationCodes, makeViolationVector, simplify="matrix")
 #names(violationVectors) <- restaurants$CAMIS
