@@ -6,7 +6,6 @@
 \author{Andrew Kaluzny}
 \date{November 2, 2014}
 
-
 \begin{document}
 \maketitle
 
@@ -88,12 +87,25 @@
 
 \section{Preliminary Results}
 \begin{frame}{Preliminary Analysis}
-Stats about things
-So many things!
-\end{frame}
-
-\begin{frame}{More Analysis}
-Probably more stuff will be here!
+\vfill
+Time between inspections
+\begin{itemize}
+	\item Mean time between inspections around 130 days
+	\item Inspections that end in an A grade have a shorter time since 
+	last inspection (about 120 days)
+\end{itemize}
+\vfill
+Number of inspections
+\begin{itemize}
+	\item Mean of about 7 inspections per restaurant
+\end{itemize}
+\vfill
+Score
+\begin{itemize}
+	\item Mean score of 16 (a B, but this includes ungraded inspections)
+	\item Mean score of Starbucks is 9
+\end{itemize}
+\vfill
 \end{frame}
 
 \section{k-Means Clustering}
@@ -115,14 +127,52 @@ $k$-Means clustering
 \end{frame}
 
 \begin{frame}{$k$-Means Clustering}
-Definitions!
-Weaknesses?
+\vfill
+Notation
+\begin{align*}
+	&\text{Event space } E& &\text{Partition } S=\{S_i\}_{i=1}^k \\
+	&\text{Probability mass function } p& &\mu_i = \frac{\int_{S_i} z\,dp(z)}{p(S_i)} \\
+	&\{z_i\}_{i=1}^{\infty} \text{ random points in $E$}& \\
+	&x = \{x_i\}_{i=1}^k,\,x_i \in E&
+\end{align*}
+Given $x$, define $S(x) = \{S_i(x)\}_{i=1}^k$ the minimum distance partition of $E$
+\vfill
+\end{frame}
+
+\begin{frame}{Algorithm (MacQueen)}
+\vfill
+At each step $n$ we have the $k$-means $x^n=\{x_i^n\}_{i=1}^k$, (integer) weights
+$w^n=\{w_i^n\}_{i=1}^k$, and partition $S^n=S(x^n)$
+\vfill
+At the start
+\begin{align*}
+	&x_i^1 = z_i& &w_i^1 = 1&
+\end{align*}
+\vfill
+For each subsequent step, we incorporate a new point $z_{k+n}$ and update
+\begin{align*}
+	\text{if } z_{k+n} \in S_i^n \text{ then } x_i^{n+1} = 
+		\frac{x_i^n w_i^n + z_{k+n}}{w_i^n + 1} \\
+	w_i^{n+1} = w_i^n + 1 \\
+	x_j^{n+1} = x_j^n \text{ and } w_j^{n+1} = w_j^n \text{ for } j \neq i
+\end{align*}
+\vfill
 \end{frame}
 
 \begin{frame}{Convergence of $k$-Means}
-Theorem!
-
-Proof (outline, at least)
+\vfill
+We define
+\[ W(x) = \sum_{i=1}^k \int_{S_i} |z-x_i| dp(z) \]
+\[ V(x) = \sum_{i=1}^k \int_{S_i} |z-\mu_i(x)| dp(z) \]
+\vfill
+\begin{theorem}
+	The sequence $\{ W(x^1), W(x^2), ...\}$ of random variables converges
+	and $\lim_{n \to \infty} W(x^n) = V(x)$ for some $x$ where $x_i = \mu_i$
+	and $x_i \neq x_j$ for $i \neq j$.
+\end{theorem}
+\vfill
+A sketch of the proof
+\vfill
 \end{frame}
 
 \begin{frame}{Pathological Distributions}
@@ -138,33 +188,107 @@ Proof (outline, at least)
 \end{frame}
 
 \begin{frame}{What do we want to cluster?}
-Markov chains!
-Specific violations!
+\vfill
+Frequency of violations
+\begin{itemize}
+	\item Tally occurrences of each violation
+	\item Scale by number of inspections
+\end{itemize}
+\vfill
+Transitions between grades
+\begin{itemize}
+	\item Treat the grades as a Markov chain
+	\item Build a matrix of transition probabilities
+	\item How to treat transitions we don't have data for?
+\end{itemize}
+\vfill
 \end{frame}
 
 \begin{frame}{Finding $k$}
-\vfill
-$k$ is a free parameter--how do we find it?
-\begin{itemize}
-	\item Increasing $k$ will always reduce sum-of-squares
-\end{itemize}
-\vfill
-The elbow method
-\begin{itemize}
-	\item Find where increasing $k$ has less of an impact (the ``elbow'')
-\end{itemize}
-\vfill
+\begin{columns}[C]
+	\column{.5\textwidth}
+	\vfill
+	How do we find $k$?
+	\begin{itemize}
+		\item Increasing $k$ will always reduce sum-of-squares
+	\end{itemize}
+	\vfill
+	The elbow method
+	\begin{itemize}
+		\item Find where increasing $k$ has less of an impact (the ``elbow'')
+	\end{itemize}
+	\vfill
+	\column{.5\textwidth}
+	\includegraphics[width=\textwidth]{plots/elbowViolation}
+	
+	\includegraphics[width=\textwidth]{plots/elbowTransition}
+\end{columns}
 \end{frame}
 
 \section{Clustering Results}
 \begin{frame}{Clustering Results}
-Clustering results!
-(Probably several slides)
+\vfill
+Violation frequencies
+\begin{itemize}
+	\item Very sparse data
+	\item Clusters don't account for much of the variance (about~25\%)
+	\item Hard to interpret
+\end{itemize}
+\vfill
+Transition matrices
+\begin{itemize}
+	\item Good accounting of the variance (about~60\%)
+	\item Can interpret cluster centers
+	\item Problems of scaling from missing data
+\end{itemize}
+\vfill
+\end{frame}
+
+\begin{frame}{Transition Clusters}
+\vfill
+$k=5$
+\begin{itemize}
+	\item $A \rightarrow A$, $B \rightarrow B$, and $C \rightarrow C$ dominated
+	restaurants all end up clustered together
+	\item Two clusters with dominant $B \rightarrow A$ transitions
+	\begin{itemize}
+		\item one has notable $A \rightarrow A$ and $A \rightarrow B$ transitions,
+		with barely any transitions to $C$
+		\item other splits evenly from $A$, when at $C$, the $C \rightarrow A$
+		transition is dominant
+	\end{itemize}
+\end{itemize}
+\vfill
+\end{frame}
+
+\begin{frame}{Transition Clusters}
+\vfill
+$k=9$
+\begin{itemize}
+	\item $A \rightarrow A$ dominated cluster is identifiable
+	\item ``re-scaling'' of matrices helps make sense of centers
+	\item Clusters with dominant $B \rightarrow A$ transitions still identifiable
+	\begin{itemize}
+		\item Third one appears that drifts down, with relatively small 
+		$A \rightarrow A$ transition
+	\end{itemize}
+	\item Sizeable cluster with a strong $C \rightarrow A$ transition that
+	then goes between $A$ and $B$ with slight chances of dropping to $C$
+	\begin{itemize}
+		\item Looking at unscaled version, see most of the data comes from
+		transitions out of $C$
+	\end{itemize}
+\end{itemize}
+\vfill
 \end{frame}
 
 \section{Conclusions}
 \begin{frame}{Conclusion}
+\vfill
 Conclusions!
+\vfill
+Questions?
+\vfill
 \end{frame}
 
 \end{document}
