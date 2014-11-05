@@ -1,4 +1,4 @@
-\documentclass{beamer}
+\documentclass[12pt]{beamer}
 \usepackage{url,amsmath,bm,graphicx,listings}
 \usetheme{default}
 \title[NYC Restaurant Inspections]{NYC Restaurant Inspections}
@@ -7,34 +7,88 @@
 \date{November 2, 2014}
 
 
-
 \begin{document}
 \maketitle
 
 \begin{frame}{Sources}
-Sources go here!
+\begin{itemize}
+	\item MacQueen, J. (1967) ``Some Methods for Classification and 
+		Analysis of Multivariate Observations.'' In \emph{Proceedings of 
+		the Fifth Berkeley Symposium on Mathematical Statistics and Probability},
+		eds L. M. Le Cam and J. Neyman. Berkeley, CA: University of California Press.
+		
+	\item (2014) ``Determining the number of clusters in a data set.'' Wikipedia.
+		Wikimedia Foundation, Inc. 
+		\url{http://en.wikipedia.org/wiki/Determining_the_number_of_clusters_in_a_data_set}
+		
+	\item R Core Team. (2014) ``R: A Language and Environment for Statistical Computing.''
+		R Foundation for Statistical Computing. Vienna, Austria.
+		\url{http://www.R-project.org}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Sources: Data}
+\begin{itemize}
+	\item (2014) ``DOHMH New York City Restaurant Inspection Results.''
+		NYC Open Data. New York, NY: The City of New York.
+		\url{https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/xx67-kt59}
+	
+	\item (2012) ``How We Score and Grade.'' New York City Department of Health and
+		Mental Hygiene. New York, NY: The City of New York.
+		\url{http://www.nyc.gov/html/doh/downloads/pdf/rii/how-we-score-grade.pdf}
+		
+	\item (2010) ``Self-Inspection Worksheet for Food Service Establishments.''
+		Bureau of Food Safety and Community Sanitation. New York, NY: The City of 
+		New York.
+		\url{http://www.nyc.gov/html/doh/downloads/pdf/rii/self-inspection-worksheet.pdf}
+\end{itemize}
 \end{frame}
 
 \section{Background}
 \begin{frame}{Restaurant Inspections}
-Background goes here!
+\begin{itemize}
+	\vfill
+	\item Began July 2010
+	\vfill
+	\item Itemized violations contribute to a score based on severity
+	\begin{itemize}
+		\item 2B: Hot food not held at or above $140^{\circ}$F, 7 to 28 points
+		\item 10J: ``Wash Hands'' sign not posted at hand-wash facility, 2 points
+		\item etc. 
+	\end{itemize}
+	\vfill
+	\item A: 0--13, B: 14--27, C: 28 and higher
+	\vfill
+	\item Not all inspections are graded, low grades lead to re-inspection
+	\vfill
+\end{itemize}
 \end{frame}
 
 \section{Getting the Data}
 \begin{frame}{Getting and Cleaning the Data}
-Wheeeeeeeee!
-
-Lets get out hands on some data!
-\end{frame}
-
-\begin{frame}{Geocoding the Data}
-Maps!
+\begin{itemize}
+	\vfill
+	\item Data set available through NYC Open Data
+	\vfill
+	\item Data needs to be cleaned
+	\begin{itemize}
+		\item e.g. \texttt{Fontana"s} $\rightarrow$ \texttt{Fontana's}
+	\end{itemize}
+	\vfill
+	\item Data needs to be parsed
+	\vfill
+	\item Code performance concerns
+	\begin{itemize}
+		\item $\approx24,500$ rows of data
+		\item R quirks
+	\end{itemize}
+	\vfill
+\end{itemize}
 \end{frame}
 
 \section{Preliminary Results}
 \begin{frame}{Preliminary Analysis}
 Stats about things
-
 So many things!
 \end{frame}
 
@@ -44,37 +98,73 @@ Probably more stuff will be here!
 
 \section{k-Means Clustering}
 \begin{frame}{Clustering}
-Why do we cluster in general?
-
-What do we hope to gain by clustering this data?
+\vfill
+Why do we cluster things?
+\begin{itemize}
+	\item Exploratory analysis
+	\item Classification
+\end{itemize}
+\vfill
+$k$-Means clustering
+\begin{itemize}
+	\item Clusters defined by their means
+	\item Originated as an information theory problem (S.~P.~Lloyd,~1957)
+	\item Analogy to the case of estimating a single mean
+\end{itemize}
+\vfill
 \end{frame}
 
 \begin{frame}{$k$-Means Clustering}
 Definitions!
-
 Weaknesses?
 \end{frame}
 
-\begin{frame}{Finding $k$}
-Elbows!
+\begin{frame}{Convergence of $k$-Means}
+Theorem!
+
+Proof (outline, at least)
+\end{frame}
+
+\begin{frame}{Pathological Distributions}
+\begin{itemize}
+	\vfill
+	\item Circle
+	\vfill
+	\item Square
+	\vfill
+	\item Rectangle
+	\vfill
+\end{itemize}
 \end{frame}
 
 \begin{frame}{What do we want to cluster?}
 Markov chains!
-
 Specific violations!
+\end{frame}
+
+\begin{frame}{Finding $k$}
+\vfill
+$k$ is a free parameter--how do we find it?
+\begin{itemize}
+	\item Increasing $k$ will always reduce sum-of-squares
+\end{itemize}
+\vfill
+The elbow method
+\begin{itemize}
+	\item Find where increasing $k$ has less of an impact (the ``elbow'')
+\end{itemize}
+\vfill
 \end{frame}
 
 \section{Clustering Results}
 \begin{frame}{Clustering Results}
 Clustering results!
-
 (Probably several slides)
 \end{frame}
 
 \section{Conclusions}
-\begin{frame}{
-
+\begin{frame}{Conclusion}
+Conclusions!
 \end{frame}
 
 \end{document}
