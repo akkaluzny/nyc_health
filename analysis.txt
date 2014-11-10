@@ -1,0 +1,211 @@
+
+R version 3.0.2 (2013-09-25) -- "Frisbee Sailing"
+Copyright (C) 2013 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> source("analyzeData.R")
+[1] "Reading in data..."
+[1] "Tabulating stats..."
+[1] "Finding several means..."
+
+Tightness of transition clusters (k=5)
+[1] 0.519 0.204 0.415 0.214 0.180
+
+Tightness of transition clusters (k=9)
+[1] 0.1232 0.4540 0.1457 0.2362 0.2594 0.0728 0.2415 0.3873 0.0594
+
+Tightness of violation clusters (k=5)
+[1] 0.415 0.180 0.218 0.201 0.519
+
+all restaurants 
+Cluster size:  24513 
+Avg number of inspections:  6.820055 
+SD in number of inspections:  3.77716 
+Avg score:  16.3734 
+Time avg score:  11.79646 
+Avg time between inspections:  126.5498 
+Most frequent cuisines:
+       Bakery    Hamburgers         Irish     American  Jewish/Kosher 
+            0             0             0             0             0 
+
+restaurants with multiple locations 
+Cluster size:  5700 
+Avg number of inspections:  6.325088 
+SD in number of inspections:  3.516901 
+Avg score:  14.62811 
+Time avg score:  10.3574 
+Avg time between inspections:  142.5147 
+Most frequent cuisines:
+  Pancakes/Waffles             Donuts         Hamburgers         Sandwiches 
+              2.99               2.98               2.75               2.53 
+Soups & Sandwiches 
+              2.04 
+
+BRONX 
+Cluster size:  2280 
+Avg number of inspections:  6.860526 
+SD in number of inspections:  3.854281 
+Avg score:  15.71312 
+Time avg score:  11.34289 
+Avg time between inspections:  126.4776 
+Most frequent cuisines:
+                                                         African 
+                                                            3.71 
+                                                Pancakes/Waffles 
+                                                            2.07 
+                                                         Chicken 
+                                                            1.71 
+                                                   Chinese/Cuban 
+                                                            1.69 
+Latin (Cuban, Dominican, Puerto Rican, South & Central American) 
+                                                            1.31 
+
+BROOKLYN 
+Cluster size:  5870 
+Avg number of inspections:  6.744123 
+SD in number of inspections:  3.828173 
+Avg score:  16.38729 
+Time avg score:  11.91115 
+Avg time between inspections:  123.9674 
+Most frequent cuisines:
+      Chilean        Creole       Russian        Polish Jewish/Kosher 
+         3.18          2.23          2.07          2.05          1.26 
+
+MANHATTAN 
+Cluster size:  9933 
+Avg number of inspections:  6.87466 
+SD in number of inspections:  3.707338 
+Avg score:  16.35355 
+Time avg score:  11.67354 
+Avg time between inspections:  129.3794 
+Most frequent cuisines:
+           Iranian         Polynesian        Californian Soups & Sandwiches 
+              1.47               1.47               1.47               1.18 
+      Scandinavian 
+              1.12 
+
+QUEENS 
+Cluster size:  5455 
+Avg number of inspections:  6.971219 
+SD in number of inspections:  3.888397 
+Avg score:  16.72124 
+Time avg score:  12.08715 
+Avg time between inspections:  120.9046 
+Most frequent cuisines:
+  Filipino     Korean     Afghan   Peruvian Indonesian 
+      2.18       1.96       1.89       1.63       1.50 
+
+STATEN ISLAND 
+Cluster size:  931 
+Avg number of inspections:  5.94522 
+SD in number of inspections:  3.109854 
+Avg score:  16.08257 
+Time avg score:  11.90546 
+Avg time between inspections:  150.1577 
+Most frequent cuisines:
+     Southwestern             Cajun             Soups Fruits/Vegetables 
+             7.78              5.58              4.27              4.27 
+    Pizza/Italian 
+             2.35 
+
+        AA         AB         AC         BA         BB         BC         CA 
+0.21425674 0.28780338 0.23690067 0.42877184 0.25094364 0.15058546 0.16447294 
+        CB         CC 
+0.74045404 0.05915198 
+transition cluster 1/5 
+Cluster size:  3493 
+Avg number of inspections:  9.907529 
+SD in number of inspections:  3.355815 
+Avg score:  21.05007 
+Time avg score:  16.04593 
+Avg time between inspections:  99.02137 
+Most frequent cuisines:
+    Creole/Cajun       Indonesian       Portuguese      Bangladeshi 
+            2.51             2.12             1.63             1.57 
+Pancakes/Waffles 
+            1.51 
+
+         AA          AB          AC          BA          BB          BC 
+0.370607115 0.310637736 0.012829922 0.889905008 0.074481130 0.005235911 
+         CA          CB          CC 
+0.005873912 0.006343213 0.014955305 
+transition cluster 2/5 
+Cluster size:  7085 
+Avg number of inspections:  6.577982 
+SD in number of inspections:  2.709806 
+Avg score:  13.1951 
+Time avg score:  10.39939 
+Avg time between inspections:  139.8018 
+Most frequent cuisines:
+         Ethiopian           Hawaiian       Creole/Cajun Soups & Sandwiches 
+             1.646              1.307              0.730              0.425 
+   Bagels/Pretzels 
+             0.313 
+
+        AA         AB         AC         BA         BB         BC         CA 
+0.31864543 0.22406391 0.17424712 0.16894060 0.21585397 0.17093072 0.89463301 
+        CB         CC 
+0.03609527 0.04033097 
+transition cluster 3/5 
+Cluster size:  3708 
+Avg number of inspections:  8.329288 
+SD in number of inspections:  3.727099 
+Avg score:  19.30753 
+Time avg score:  13.43294 
+Avg time between inspections:  108.484 
+Most frequent cuisines:
+                   Polynesian                         Czech 
+                        5.611                         1.204 
+                     Hawaiian                        Creole 
+                        1.204                         1.103 
+Vietnamese/Cambodian/Malaysia 
+                        0.932 
+
+         AA          AB          AC          BA          BB          BC 
+0.420041814 0.055940020 0.009915956 0.033173217 0.084634193 0.014578510 
+         CA          CB          CC 
+0.007138525 0.004000485 0.013696888 
+transition cluster 4/5 
+Cluster size:  6870 
+Avg number of inspections:  3.448617 
+SD in number of inspections:  2.530736 
+Avg score:  11.37096 
+Time avg score:  9.016591 
+Avg time between inspections:  202.2469 
+Most frequent cuisines:
+            Soups       Californian           Chilean             Other 
+             2.57              2.57              2.57              1.91 
+Fruits/Vegetables 
+             1.85 
+
+        AA         AB         AC         BA         BB         BC         CA 
+0.29594585 0.30224988 0.18305912 0.92423720 0.03590153 0.01842915 0.93366101 
+        CB         CC 
+0.03060272 0.02332936 
+transition cluster 5/5 
+Cluster size:  3357 
+Avg number of inspections:  9.350909 
+SD in number of inspections:  2.509258 
+Avg score:  16.86413 
+Time avg score:  11.59661 
+Avg time between inspections:  110.512 
+Most frequent cuisines:
+   Iranian   Egyptian     Polish Australian Portuguese 
+     1.434      1.282      0.966      0.947      0.826 
+
+> 
+> 

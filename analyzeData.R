@@ -110,10 +110,12 @@ plotScore <- function(scores, setName) {
   breaks <- 7 * (0:(as.integer(max(scores, na.rm=TRUE))/7 + 2)) - 1
   hist(scores, breaks=breaks, main=paste0("Scores for ", setName), xlim=c(0, 60), col="gray")
 }
-allCuisines <- unique(restaurantData$CUISINE.DESCRIPTION)
+allCuisineTypes <- unique(restaurantData$CUISINE.DESCRIPTION)
+allCuisines <- factor(restaurantData$CUISINE.DESCRIPTION, levels=allCuisineTypes)
+overallCuisineFreq <- tabulate(allCuisines, nbins=length(allCuisineTypes)) / length(allCuisines)
 cuisineFrequency <- function(cuisines) {
-  cuisines <- factor(cuisines, levels=allCuisines)
-  result <- tabulate(cuisines, nbins=length(allCuisines)) / length(cuisines)
+  cuisines <- factor(cuisines, levels=allCuisineTypes)
+  result <- tabulate(cuisines, nbins=length(allCuisineTypes)) / length(cuisines) / overallCuisineFreq - 1
   names(result) <- levels(cuisines)
   return(result)
 }
@@ -144,13 +146,8 @@ reportOnRestaurants <- function(restaurantIDs, setName) {
   plotScore(inspectionData$SCORE[inspectionIDs], setName)
   return(result)
 }
-
-for (ii in 1:nrow(tranK5$centers)) {
-  restaurantIDs <- restaurantData$CAMIS[tranK5$cluster == ii]
-  clusterData <- reportOnRestaurants(restaurantIDs, 
-                      paste0("transition cluster ",ii,"/",nrow(tranK5$centers)))
+printRestaurantReport <- function(clusterData) {
   cat(clusterData$name, "\n")
-  print(tranK5$centers[ii, ])
   cat("Cluster size: ", clusterData$n.restaurants, "\n")
   cat("Avg number of inspections: ", clusterData$avg.n.inspections, "\n")
   cat("SD in number of inspections: ", clusterData$var.n.inspections, "\n")
@@ -158,29 +155,34 @@ for (ii in 1:nrow(tranK5$centers)) {
   cat("Time avg score: ", clusterData$time.avg.score, "\n")
   cat("Avg time between inspections: ", clusterData$avg.time, "\n")
   cat("Most frequent cuisines:\n")
-  print(sort(clusterData$cuisines, decreasing=TRUE)[1:10], digits=3)
+  print(sort(clusterData$cuisines, decreasing=TRUE)[1:5], digits=3)
   cat("\n")
 }
 
-#cat("Transition centers (k=5)\n")
-#print(tranK5$centers, digits=3)
-#cat("\n")
-#for (ii in 1:5) {
-#  print(rowToMatrix(tranK5$centers[ii, ]), digits=3)
-#  cat("\n")
-#}
-#cat("Transition centers (k=9)\n")
-#print(tranK9$centers, digits=3)
-#cat("\n")
-#for (ii in 1:9) {
-#  print(rowToMatrix(tranK9$centers[ii, ]), digits=3)
-#  cat("\n")
-#}
-#cat("Violation centers (k=9)\n")
-#for (ii in 1:9) {
-#  print(sort(tranK9$centers[ii, ], decreasing=TRUE)[1:5], digits=3)
-#  cat("\n")
-#}
+allRestaurants <- reportOnRestaurants(restaurantData$CAMIS, "all restaurants")
+printRestaurantReport(allRestaurants)
+
+chainNames <- unique(restaurantData$DBA[duplicated(restaurantData$DBA)])
+chainIDs <- restaurantData$CAMIS[restaurantData$DBA %in% chainNames]
+chainRestaurants <- reportOnRestaurants(chainIDs, "restaurants with multiple locations")
+printRestaurantReport(chainRestaurants)
+
+starbucksIDs <- restaurantData$CAMIS[restaurantData$DBA == "STARBUCKS" | restaurantData$DBA == "STARBUCKS COFFEE"]
+starbucksRestaurants <- reportOnRestaurants(starbucksIDs, "Starbucks")
+printRestaurantReport(starbucksRestaurants)
+
+for (b in boroughs) {
+  bIDs <- restaurantData$CAMIS[restaurantData$BORO == b]
+  printRestaurantReport(reportOnRestaurants(bIDs, b))
+}
+
+for (ii in 1:nrow(tranK5$centers)) {
+  restaurantIDs <- restaurantData$CAMIS[tranK5$cluster == ii]
+  clusterData <- reportOnRestaurants(restaurantIDs, 
+                      paste0("transition cluster ",ii,"/",nrow(tranK5$centers)))
+  print(tranK5$centers[ii, ])
+  printRestaurantReport(clusterData)
+}
 
 # principal components for visualizing clusters
 pcResults <- prcomp(transitionData, scale=TRUE, center=TRUE)$x

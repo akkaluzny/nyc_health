@@ -11,6 +11,7 @@
 
 \begin{frame}{Sources}
 \begin{itemize}
+	\small{
 	\item MacQueen, J. (1967) ``Some Methods for Classification and 
 		Analysis of Multivariate Observations.'' In \emph{Proceedings of 
 		the Fifth Berkeley Symposium on Mathematical Statistics and Probability},
@@ -20,9 +21,14 @@
 		Wikimedia Foundation, Inc. 
 		\url{http://en.wikipedia.org/wiki/Determining_the_number_of_clusters_in_a_data_set}
 		
+	\item (2014) ``k-means clustering.'' Wikipedia.
+		Wikimedia Foundation, Inc. 
+		\url{http://en.wikipedia.org/wiki/K-means_clustering}
+		
 	\item R Core Team. (2014) ``R: A Language and Environment for Statistical Computing.''
 		R Foundation for Statistical Computing. Vienna, Austria.
 		\url{http://www.R-project.org}
+	}
 \end{itemize}
 \end{frame}
 
@@ -102,10 +108,64 @@ Number of inspections
 \vfill
 Score
 \begin{itemize}
-	\item Mean score of 16 (a B, but this includes ungraded inspections)
-	\item Mean score of Starbucks is 9
+	\item Mean score of 16
+	\item time averaged to 12
 \end{itemize}
 \vfill
+\end{frame}
+
+\begin{frame}{Brough Differences}
+\vfill
+\begin{itemize}
+	\item Brooklyn and Queens have higher avg. scores
+	\vfill
+	\item Staten Island has lower avg, but higher time-avg.
+	\vfill
+	\item Relative frequencies of cuisines
+\end{itemize}
+\vfill
+\end{frame}
+
+\begin{frame}{Multiple Location}
+\begin{columns}[C]
+	\column{.5\textwidth}
+	\vfill
+	Restaurants with multiple locations
+	\begin{itemize}
+		\item Lower scores
+		\item Longer times between inspections
+		\item Pancakes/Waffles, Donuts, Hamburgers, Sandwiches
+	\end{itemize}
+	\vfill
+	\column{.5\textwidth}
+	\includegraphics[width=\textwidth]{plots/time_all}
+	
+	\includegraphics[width=\textwidth]{plots/time_multiple}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Where are Restaurants with Multiple Locations?}
+\includegraphics[width=\textwidth]{plots/boro_multiple}
+\end{frame}
+
+\begin{frame}{Starbucks}
+\begin{columns}[C]
+	\column{.5\textwidth}
+	\vfill
+	\begin{itemize}
+		\item ~229 locations
+		\item avg. score 8.7, time-avg. 6.9
+		\item avg. 250 days between inspections
+		\item avg. 4.5 inspections
+	\end{itemize}
+	\vfill
+	\includegraphics[width=\textwidth]{plots/scores_starbucks}
+	\vfill
+	\column{.5\textwidth}
+	\includegraphics[width=\textwidth]{plots/time_all}
+	
+	\includegraphics[width=\textwidth]{plots/time_starbucks}
+\end{columns}
 \end{frame}
 
 \section{k-Means Clustering}
@@ -159,6 +219,22 @@ For each subsequent step, we incorporate a new point $z_{k+n}$ and update
 \vfill
 \end{frame}
 
+\begin{frame}[fragile]{Pseudocode Algorithm}
+\vfill
+\begin{small}
+\begin{lstlisting}
+x[1:k] <- z[1:k]
+w[1:k] <- 1
+for i in 1:n {
+    find j that minimizes distance(x[j], z[i+k])
+    x[j] <- (x[j] * w[j] + z[i+k]) / (w[i] + 1)
+    w[i] <- w[i] + 1
+}
+\end{lstlisting}
+\end{small}
+\vfill
+\end{frame}
+
 \begin{frame}{Convergence of $k$-Means}
 \vfill
 We define
@@ -172,6 +248,23 @@ We define
 \end{theorem}
 \vfill
 A sketch of the proof
+\vfill
+\end{frame}
+
+\begin{frame}{A Helpful Lemma}
+\vfill
+\begin{lemma}
+	For sequences of random variables $t_1, t_2, \ldots$ and 
+	$\epsilon_1, \epsilon_2, \ldots$ with a monotone increasing set of
+	events $ \beta_1, \beta_2, \ldots $, if
+	\begin{align*}
+		&|t_n| \leq K < \infty \\
+		&\epsilon_n \geq 0, \sum_{n=0}^{\infty} \epsilon_n < \infty \\
+		&E(t_{n+1} | \beta_n) \leq t_n + \epsilon_n
+	\end{align*}
+	Then $t_1, t_2, \ldots$ and $s_0, s_1, \ldots$ converge, where
+	$s_0 = 0$ and $s_n = \sum_{i=1}^n (t_i - E(t_{i+1} | \beta_i))$
+\end{lemma}
 \vfill
 \end{frame}
 
@@ -201,6 +294,46 @@ Transitions between grades
 	\item Build a matrix of transition probabilities
 	\item How to treat transitions we don't have data for?
 \end{itemize}
+\vfill
+\end{frame}
+
+\begin{frame}[fragile]{Tabulating Violation Frequencies}
+\vfill
+\begin{small}
+\begin{lstlisting}
+for id in restaurantIDs {
+    get violations for id
+    for v in violations {
+        result[v, id]++
+    }
+    scale result[, id] by number of inspections
+}
+result <- transpose(result)
+\end{lstlisting}
+\end{small}
+\vfill
+\end{frame}
+
+\begin{frame}[fragile]{Creating Transition Matrices}
+\vfill
+\begin{footnotesize}
+\begin{lstlisting}
+for id in restaurantIDs {
+    get grades for id
+    create empty 3 by 3 transMatrix
+    for ii in 2:n {
+        lastGrade <- grades[ii-1]
+        curGrade <- grades[ii]
+        increment transMatrix[curGrade, lastGrade]
+    }
+    for ii in 1:3 {
+        scale transMatrix[, ii] by sum of column
+    }
+    result[, id] <- transMatrix
+}
+result <- transpose(result)
+\end{lstlisting}
+\end{footnotesize}
 \vfill
 \end{frame}
 
@@ -244,21 +377,35 @@ Transition matrices
 \vfill
 \end{frame}
 
+\begin{frame}{Visualizing Clusters}
+\includegraphics[height=\textheight]{plots/trans_pca1}
+\end{frame}
+\begin{frame}{Visualizing Clusters}
+\includegraphics[height=\textheight]{plots/trans_pca2}
+\end{frame}
+\begin{frame}{Visualizing Clusters}
+\includegraphics[height=\textheight]{plots/trans_pca3}
+\end{frame}
+
 \begin{frame}{Transition Clusters}
 \vfill
 $k=5$
 \begin{itemize}
 	\item $A \rightarrow A$, $B \rightarrow B$, and $C \rightarrow C$ dominated
-	restaurants all end up clustered together
+	restaurants all end up clustered together (\#4)
 	\item Two clusters with dominant $B \rightarrow A$ transitions
 	\begin{itemize}
 		\item one has notable $A \rightarrow A$ and $A \rightarrow B$ transitions,
-		with barely any transitions to $C$
+		with barely any transitions to $C$ (\#1)
 		\item other splits evenly from $A$, when at $C$, the $C \rightarrow A$
-		transition is dominant
+		transition is dominant (\#5)
 	\end{itemize}
 \end{itemize}
 \vfill
+\end{frame}
+
+\begin{frame}{Cluster Properties}
+
 \end{frame}
 
 \begin{frame}{Transition Clusters}
