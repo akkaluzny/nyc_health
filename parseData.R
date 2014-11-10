@@ -1,5 +1,9 @@
 dataDirectory <- "data"
 dataFile <- paste0(dataDirectory, "/webData.csv")
+takeSample <- FALSE  # TRUE to sample the set before parsing
+fraction <- 0.4      # the fraction of the number of restaurants for the sample
+
+startTime <- proc.time()[3]
 
 colClasses <- c("integer", rep("character", 4), "integer", 
                 rep("character", 7), "integer", rep("character", 4))
@@ -20,15 +24,15 @@ ratingData$RECORD.DATE <- convertDate(ratingData$RECORD.DATE)
 ratingData <- ratingData[ratingData$INSPECTION.DATE != "1900-01-01", ]
 
 # create a subset of the data, to make testing go faster
-print("Taking sample...")
-uniqueRestaurants <- unique(ratingData$CAMIS)
-nRestaurants <- length(uniqueRestaurants)
-fraction <- 0.025
-sampleVector <- sample(uniqueRestaurants, as.integer(fraction * nRestaurants))
-ratingData <- ratingData[ratingData$CAMIS %in% sampleVector, ]
-# create a random testID from the sample
-testID <- sample(ratingData$CAMIS, 1)
-
+if (takeSample) {
+  print("Taking sample...")
+  uniqueRestaurants <- unique(ratingData$CAMIS)
+  nRestaurants <- length(uniqueRestaurants)
+  sampleVector <- sample(uniqueRestaurants, as.integer(fraction * nRestaurants))
+  ratingData <- ratingData[ratingData$CAMIS %in% sampleVector, ]
+  # create a random testID from the sample, for help with testing/debugging 
+  testID <- sample(ratingData$CAMIS, 1)
+}
 # Check to see that addresses are uniquely associated with the CAMIS ids
 # note this is not optimized and will take a while to run
 #ii <- 0
@@ -83,17 +87,38 @@ print("Creating matrix of restaurant violations...")
 violationCodes <- unique(ratingData$VIOLATION.CODE)
 violationCodes <- violationCodes[violationCodes != ""] # exclude the empty violation
 nCodes <- length(violationCodes)
+# we'll construct the transpose of the desired matrix, as column operations are 
+# more effecient
+violationMatrix <- matrix(numeric(nCodes * nrow(restaurants)), nrow=nCodes)
+rownames(violationMatrix) <- violationCodes
+colnames(violationMatrix) <- restaurants$CAMIS
+for (id in restaurants$CAMIS) {
+  violations <- ratingData[ratingData$CAMIS == id, "VIOLATION.CODE"]
+  idCode <- as.character(id)
+  for (v in violations) {
+    if (v != "") {
+      violationMatrix[v, idCode] <- violationMatrix[v, idCode] + 1
+    }
+  }
+  n <- restaurants[restaurants$CAMIS == id, "N.INSPECTIONS"]
+  if (n > 0) {
+    violationMatrix[, idCode] <- violationMatrix[, idCode] / n
+  }
+  rm(violations)
+}
+violationMatrix <- t(violationMatrix)
+## OLD METHOD -- slow
 # Create a matrix where each row corresponds to a "histogram"-like tally of
 # violations for a restaurant
 # This helper function creates one column of the matrix (i.e. for one violation)
-makeViolationVector <- function(violation) {
-  vRows <- ratingData$VIOLATION.CODE == violation
-  result <- vapply(restaurants$CAMIS, function(id) sum((ratingData$CAMIS == id) & vRows),
-                   FUN.VALUE=integer(1))
-  return(result / restaurants$N.INSPECTIONS)
-}
-violationMatrix <- sapply(violationCodes, makeViolationVector, simplify="matrix")
-rownames(violationMatrix) <- restaurants$CAMIS
+#makeViolationVector <- function(violation) {
+#  vRows <- ratingData$VIOLATION.CODE == violation
+#  result <- vapply(restaurants$CAMIS, function(id) sum((ratingData$CAMIS == id) & vRows),
+#                   FUN.VALUE=integer(1))
+#  return(result / restaurants$N.INSPECTIONS)
+#}
+#violationMatrix <- sapply(violationCodes, makeViolationVector, simplify="matrix")
+#rownames(violationMatrix) <- restaurants$CAMIS
 
 # helper function to go from score to grade--A -> 1, etc.
 getGrade <- function(score) {
@@ -105,8 +130,10 @@ getGrade <- function(score) {
 
 # Create matrix of transition matrices for each restaurant,
 # also create a column in the inspection frame for the time since last inspection
+# and time to next inspection
 print("Creating transition matrices...")
 inspections$SINCE.LAST <- numeric(nrow(inspections))
+inspections$UNTIL.NEXT <- numeric(nrow(inspections))
 # we'll construct the transpose, as its easier to build up by columns of 
 # transition matrices
 transitionMatrices <- matrix(, nrow=9, ncol=nrow(restaurants))
@@ -120,7 +147,9 @@ inspections <- inspections[order(inspections$CAMIS, inspections$INSPECTION.DATE)
 for (id in restaurants$CAMIS) {
   insp <- inspections[inspections$CAMIS==id, c("SCORE", "INSPECTION.DATE")]
   sinceLast <- numeric(nrow(insp))
+  untilNext <- numeric(nrow(insp))
   sinceLast[1] <- NA # no time since last for the first inspection
+  untilNext[nrow(insp)] <-NA # no time to next for the last
   transMatrix <- numeric(9)
   grades <- getGrade(insp[, "SCORE"])
   n <- length(grades)
@@ -129,7 +158,9 @@ for (id in restaurants$CAMIS) {
       lastGrade <- grades[ii-1]
       grade <- grades[ii]
       transMatrix[(lastGrade-1)*3 + grade] <- transMatrix[(lastGrade-1)*3 + grade] + 1
-      sinceLast[ii] <- difftime(insp[ii, 2], insp[ii-1, 2], units="days")
+      timeBetween <- difftime(insp[ii, 2], insp[ii-1, 2], units="days")
+      sinceLast[ii] <- timeBetween
+      untilNext[ii-1] <- timeBetween
     }
     ## do the scaling for each "column" of the transition matrix
     for (ii in 1:3) {
@@ -141,7 +172,8 @@ for (id in restaurants$CAMIS) {
   }
   transitionMatrices[, as.character(id)] <- transMatrix
   inspections[inspections$CAMIS==id, "SINCE.LAST"] <- sinceLast
-  rm(insp, grades, transMatrix, sinceLast) # might not be needed
+  inspections[inspections$CAMIS==id, "UNTIL.NEXT"] <- untilNext
+  rm(insp, grades, transMatrix, sinceLast, untilNext) # might not be needed
 }
 transitionMatrices <- t(transitionMatrices)
 
@@ -156,3 +188,4 @@ write.table(transitionMatrices, paste0(dataDirectory, "/transitionData.csv"),
             row.names=TRUE, sep=",")
 
 print("Done.")
+cat("Time taken: ", proc.time()[3] - startTime, "s\n")
